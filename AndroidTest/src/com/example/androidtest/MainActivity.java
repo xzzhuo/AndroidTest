@@ -1,15 +1,19 @@
 package com.example.androidtest;
 
+import com.example.websocket.MyWebSocket;
+import com.example.websocket.WebSocketListener;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity implements OnClickListener, WebSocketListener  {
 
 	private FragmentManager fragmentManager;
 	
@@ -23,6 +27,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private View newsLayout;
 	private View settingLayout;
 	
+	private MyWebSocket mWebSocket = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,6 +39,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		// 第一次启动时选中第0个tab
 		setTabSelection(0);
 
+		mWebSocket = new MyWebSocket();
+		
+		mWebSocket.connect("ws://10.100.13.75:8081/websocket", this);
 	}
 
 	@Override
@@ -170,5 +179,32 @@ public class MainActivity extends Activity implements OnClickListener {
 		contactsLayout.setBackgroundColor(0xffffffff);
 		newsLayout.setBackgroundColor(0xffffffff);
 		settingLayout.setBackgroundColor(0xffffffff);
+	}
+
+	@Override
+	public void onConnect(MyWebSocket client) {
+		Log.d("WebSocket", "onConnect");
+
+		String message = String.format("{\"command\":{\"name\":\"GET_FRIND_LIST\",\"account\":\" %s \"}}", "admin"); 
+		mWebSocket.sendTextMessage(message);
+	}
+
+	@Override
+	public void onTextMessage(MyWebSocket client, String message) {
+		Log.d("WebSocket", "onTextMessage");
+		
+	}
+
+	@Override
+	public void onDisconnect(MyWebSocket client) {
+		Log.d("WebSocket", "onDisconnect");
+		
+	}
+	
+	public void onStop()
+	{
+		super.onStop();
+		
+		mWebSocket.Disconnect();
 	}
 }
