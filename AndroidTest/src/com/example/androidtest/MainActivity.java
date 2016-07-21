@@ -1,7 +1,19 @@
 package com.example.androidtest;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.example.androidtest.BaseFragment.OnCreateListener;
 import com.example.websocket.MyWebSocket;
 import com.example.websocket.WebSocketListener;
+import com.example.websocket.WebSocketSendPacket;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -15,6 +27,8 @@ import android.view.View.OnClickListener;
 
 public class MainActivity extends Activity implements OnClickListener, WebSocketListener  {
 
+	private static final String TAG = "MainActivity";
+	
 	private FragmentManager fragmentManager;
 	
 	private MessageFragment messageFragment;
@@ -28,6 +42,8 @@ public class MainActivity extends Activity implements OnClickListener, WebSocket
 	private View settingLayout;
 	
 	private MyWebSocket mWebSocket = null;
+	
+	private List<Map<String, Object>> listContact = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,12 +139,25 @@ public class MainActivity extends Activity implements OnClickListener, WebSocket
 			contactsLayout.setBackgroundColor(0xff0000ff);
 			if (contactsFragment == null) {
 				// 如果ContactsFragment为空，则创建一个并添加到界面上
-				contactsFragment = new ContactsFragment();
+				contactsFragment = new ContactsFragment(this, new OnCreateListener() {
+
+					@Override
+					public void onCreate() {
+						if (listContact != null)
+						{
+							contactsFragment.updateContact(listContact);
+						}
+					}
+					
+				});
 				transaction.add(R.id.content, contactsFragment);
 			} else {
 				// 如果ContactsFragment不为空，则直接将它显示出来
 				transaction.show(contactsFragment);
 			}
+			
+			
+			
 			break;
 		case 2:
 			// 当点击了动态tab时，改变控件的图片和文字颜色
@@ -185,14 +214,56 @@ public class MainActivity extends Activity implements OnClickListener, WebSocket
 	public void onConnect(MyWebSocket client) {
 		Log.d("WebSocket", "onConnect");
 
-		String message = String.format("{\"command\":{\"name\":\"GET_FRIND_LIST\",\"account\":\" %s \"}}", "admin"); 
-		mWebSocket.sendTextMessage(message);
+		WebSocketSendPacket data = new WebSocketSendPacket("GET_FRIND_LIST", "admin", "token");
+		try {
+			String jsonValue = data.toJsonValue();
+			Log.d(TAG, jsonValue);
+			mWebSocket.sendTextMessage(jsonValue);
+		} catch (JsonProcessingException e) {
+			Log.d(TAG, e.getMessage());
+		}
 	}
 
 	@Override
 	public void onTextMessage(MyWebSocket client, String message) {
 		Log.d("WebSocket", "onTextMessage");
 		
+		JSONObject jsonObject = null;
+		JSONArray jsonDataArray = null;
+		try
+		{
+			jsonObject = new JSONObject(message);
+			jsonDataArray = jsonObject.getJSONArray("data");
+			Log.d(TAG, jsonDataArray.toString());
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+	    }
+		
+		listContact = new ArrayList<Map<String, Object>>();
+		
+		if (jsonDataArray != null)
+		{
+			for (int i=0; i < jsonDataArray.length(); i++)
+			{
+				try
+				{
+					Map<String, Object> map = new HashMap<String, Object>();
+			        map.put("img", R.drawable.ic_launcher);
+			        map.put("account", jsonDataArray.getJSONObject(i).get("account"));
+			        map.put("name", jsonDataArray.getJSONObject(i).get("name"));
+			        listContact.add(map);
+				}
+				catch (JSONException e)
+				{
+					Log.e(TAG, e.getMessage());
+				}
+			}
+		}
+		
+        if (contactsFragment != null)
+        {
+        	contactsFragment.updateContact(listContact);
+        }
 	}
 
 	@Override

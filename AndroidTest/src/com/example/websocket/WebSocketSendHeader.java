@@ -3,15 +3,24 @@ package com.example.websocket;
 import java.util.Date;
 
 public class WebSocketSendHeader {
-	private String define;
+	private String msgid;
 	private String account;
 	private String token;
 	private Date date;
-	public String getDefine() {
-		return define;
+
+	public WebSocketSendHeader(String msgid, String account, String token)
+	{
+		this.msgid = msgid;
+		this.account = account;
+		this.token = token;
+		this.date = new Date();
 	}
-	public void setDefine(String define) {
-		this.define = define;
+	
+	public String getMsgid() {
+		return msgid;
+	}
+	public void setMsgid(String msgid) {
+		this.msgid = msgid;
 	}
 	public String getAccount() {
 		return account;
