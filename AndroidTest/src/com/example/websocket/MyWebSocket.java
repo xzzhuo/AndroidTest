@@ -1,6 +1,7 @@
 package com.example.websocket;
 
 import android.util.Log;
+import de.tavendo.autobahn.WebSocket;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -10,7 +11,7 @@ public class MyWebSocket {
 	private static final String TAG = "MyWebSocket";
 	
 	private WebSocketListener mListener = null;
-	private WebSocketConnection mConnection = null;
+	private WebSocket mConnection = null;
 	private boolean mIsConnect = false;
 	
 	public MyWebSocket()
