@@ -24,6 +24,12 @@
 			android:padding="10dp"
 			android:text="这是消息界面"
 			android:textSize="20sp" />
+		
+		<Button
+		    android:id="@+id/btnTest"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/test" />
 	</LinearLayout>
 	
 </RelativeLayout>
