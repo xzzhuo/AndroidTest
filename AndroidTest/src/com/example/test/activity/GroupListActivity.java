@@ -41,7 +41,10 @@ public class GroupListActivity extends Activity {
 		}
 		
 		for(int i=0;i<10;i++) {
-			groupData.AddItem("C", new GroupDataItem("ccccc"+i));
+			groupData.AddItem("C", new GroupDataItem("ccccc"+(i+5)));
 		}
+		
+		groupData.AddItem("C", new GroupDataItem("ccccc"+3));
+		groupData.AddItem("C", new GroupDataItem("ccccc"+1));
 	}
 }

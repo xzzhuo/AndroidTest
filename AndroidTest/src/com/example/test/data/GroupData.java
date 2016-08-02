@@ -34,26 +34,31 @@ public class GroupData {
 	
 	public List<GroupPointerItem> getDataList()
 	{
-		Collections.sort(mGroupDataList, new Comparator<Entry<String, List<GroupDataItem>>>() {
+		for (Entry<String, List<GroupDataItem>> entry : mGroupDataList.entrySet())
+		{
+			Collections.sort(entry.getValue(), new Comparator<GroupDataItem>() {
 
-			@Override
-			public int compare(Entry<String, List<GroupDataItem>> lhs,
-					Entry<String, List<GroupDataItem>> rhs) {
-				return (lhs.getKey()).compareTo(rhs.getKey());
-			}
-		});
+				@Override
+				public int compare(GroupDataItem lhs, GroupDataItem rhs) {
+					return lhs.itemTest.compareTo(rhs.itemTest);
+				}
+
+			});
+		}
 		
 		List<GroupPointerItem> listItem = new ArrayList<GroupPointerItem>();
 		
-		for (Entry<String, List<GroupDataItem>> attr : mGroupDataList.entrySet()) {
-			String groupName = attr.getKey();
-			List<GroupDataItem> groupItems = attr.getValue();
+		List<String> keyList = new ArrayList<String>(mGroupDataList.keySet());
+		Collections.sort(keyList);
+		
+		for (String key : keyList) {
+			List<GroupDataItem> groupItems = mGroupDataList.get(key);
 			
-			listItem.add(new GroupPointerItem(groupName, null));
+			listItem.add(new GroupPointerItem(key, null));
 			
 			for (GroupDataItem item : groupItems)
 			{
-				listItem.add(new GroupPointerItem(groupName, item));
+				listItem.add(new GroupPointerItem(key, item));
 			}
 		}
 		
